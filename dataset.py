@@ -79,4 +79,3 @@ df_fraud.to_csv("bonuri_frauduloase.csv", index=False)
 
 print(f"Total bonuri frauduloase: {len(df_fraud)} / {nr_bonuri}")
 print(df_fraud.head())
-
