@@ -1,14 +1,14 @@
 import streamlit as st
 import joblib
 import numpy as np
+import pandas as pd
 
 # incarcare model si scaller
-model = joblib.load("model_rf.pkl")
-scaler = joblib.load("scaler.pkl")
+model = joblib.load("model_pipeline.pkl")
 
 st.title("Detectarea Fraudelor pentru Bonurile Fiscale")
 
-st.markdown("Introduceți datele bonului pentru a prezice dacă este **fraudulos** sau nu.")
+st.markdown("Introduceți datele bonului pentru a prezice dacă este fraudulos sau nu.")
 
 # input utilizator
 total_suma = st.number_input("Total sumă (RON)", min_value=0.0, step=0.1)
@@ -24,21 +24,19 @@ metoda_map = {"numerar": 0, "card": 1, "tichete": 2, "transfer": 4}
 comerciant_map = {f"C{str(i).zfill(4)}": i for i in range(1, 201)}
 
 # input array
-input_raw = np.array([[
-    total_suma,
-    numar_produse,
-    procent_tva,
-    ora_emitere * 60 + minut_emitere,
-    metoda_map[metoda_plata],
-    comerciant_map[comerciant_id]
-]])
-
-input_scaled = input_raw
+input = pd.DataFrame([{
+    "Total_suma": total_suma,
+    "Număr_produse": numar_produse,
+    "procent_TVA": procent_tva,
+    "minute_emitere": ora_emitere * 60 + minut_emitere,
+    "metoda_plata": metoda_plata,
+    "Comerciant_id": comerciant_id
+}])
 
 if st.button("Prezice bonul"):
 
-    pred = model.predict(input_scaled)[0]
-    prob = model.predict_proba(input_scaled)[0][1]
+    pred = model.predict(input)[0]
+    prob = model.predict_proba(input)[0][1]
 
     if pred == 1:
         st.error(f"Bonul este probabil fraudulos (probabilitate: {prob:.2f})")
